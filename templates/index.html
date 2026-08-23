@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poolguyz — Pool Care Done Right</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#top" class="logo" aria-label="Pool Guyz home"><img class="brand-logo" src="{{ url_for('static', filename='images/poolguyz-logo-transparent.png') }}" alt="Pool Guyz Swimming Pool System"></a>
+      <div class="nav-links">
+        <a href="#services">Services</a>
+        <a href="{{ url_for('water_treatment') }}">Water Treatment</a>
+        <a href="#why">Why Us</a>
+        <a href="#gallery">Work</a>
+        <a href="#reviews">Reviews</a>
+        <a href="/quote" class="nav-cta">Get a Quote</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="hero-water" aria-hidden="true">
+      <div class="water-shimmer"></div>
+      <div class="overflow-flow"></div>
+    </div>
+    <div class="hero-content">
+
+      <h1>Your pool.<br>Our problem.</h1>
+      <p class="hero-sub">Cleaning, repairs, and installs from a crew that actually shows up. No algae, no excuses.</p>
+      <div class="hero-actions">
+        <a href="/quote" class="btn btn-primary">Get a free quote</a>
+        <a href="#services" class="btn btn-ghost">See what we do</a>
+      </div>
+    </div>
+    <svg class="wave-divider" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,64 C240,120 480,0 720,32 C960,64 1200,112 1440,48 L1440,120 L0,120 Z"></path>
+    </svg>
+  </header>
+
+  <section class="services" id="services">
+    <p class="eyebrow center">What we do</p>
+    <h2 class="section-title center">Everything your pool needs, one crew</h2>
+    <div class="service-grid">
+      {% for service in services %}
+      <div class="service-card">
+        <div class="service-icon">{{ service.icon }}</div>
+        <h3>{{ service.title }}</h3>
+        <p>{{ service.description }}</p>
+      </div>
+      {% else %}
+      <p class="empty-state">Services will be added soon.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="why" id="why">
+    <svg class="wave-divider wave-top" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,64 C240,0 480,120 720,80 C960,40 1200,96 1440,56 L1440,0 L0,0 Z"></path>
+    </svg>
+    <div class="why-inner">
+      <div class="stat">
+        <span class="stat-num">12</span>
+        <span class="stat-label">years in business</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">400+</span>
+        <span class="stat-label">pools serviced</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">24hr</span>
+        <span class="stat-label">repair response</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">100%</span>
+        <span class="stat-label">local &amp; owner-operated</span>
+      </div>
+    </div>
+    <div class="team-section">
+      <div class="team-heading">
+        <p class="eyebrow">The people behind Poolguyz</p>
+        <h2>One reliable team for every pool job</h2>
+        <p>From regular cleaning to equipment repairs and water treatment, our local crew brings practical experience, clear communication, and care to every visit.</p>
+      </div>
+      <div class="team-grid">
+        {% for member in team_members %}
+        <article class="team-card">
+          {% if member.image_url %}
+          <img class="team-photo" src="{{ member.image_url | e }}" alt="{{ member.name }}">
+          {% else %}
+          <div class="team-avatar" aria-hidden="true">{{ member.name[:2] | upper }}</div>
+          {% endif %}
+          <div>
+            <h3>{{ member.name }}</h3>
+            <p class="team-role">{{ member.role }}</p>
+            <p>{{ member.bio }}</p>
+          </div>
+        </article>
+        {% else %}
+        <p class="empty-state">Our team profiles will be added soon.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section class="gallery" id="gallery">
+    <p class="eyebrow center">Recent work</p>
+    <h2 class="section-title center">A few pools we've brought back to life</h2>
+    <div class="gallery-grid">
+      {% for work in works %}
+      <div class="gallery-item g{{ (loop.index0 % 4) + 1 }}">
+        {% if work.image_url %}
+        <img class="gallery-image" src="{{ work.image_url | e }}" alt="{{ work.title }}{% if work.location %} in {{ work.location }}{% endif %}">
+        {% endif %}
+        <span>{{ work.title }}{% if work.location %} — {{ work.location }}{% endif %}</span>
+      </div>
+      {% else %}
+      <p class="empty-state">Recent work will appear here.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="reviews" id="reviews">
+    <p class="eyebrow center">From the neighbourhood</p>
+    <h2 class="section-title center">What clients say</h2>
+    <div class="review-grid">
+      {% for review in reviews %}
+      <div class="review-card">
+        <p>“{{ review.quote }}”</p>
+        <span class="review-author">— {{ review.customer_name }}{% if review.location %}, {{ review.location }}{% endif %}</span>
+      </div>
+      {% else %}
+      <p class="empty-state">Customer reviews will appear here.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <svg class="wave-divider wave-top" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,64 C240,0 480,120 720,80 C960,40 1200,96 1440,56 L1440,0 L0,0 Z"></path>
+    </svg>
+    <div class="contact-inner">
+      <h2>Ready when your pool is</h2>
+      <p>Tell us what's going on and we'll get back to you within a day — usually sooner.</p>
+      <form class="contact-form" id="contactForm">
+        <div class="form-row">
+          <input type="text" name="name" placeholder="Your name" required>
+          <input type="tel" name="phone" placeholder="Phone number" required>
+        </div>
+        <input type="text" name="suburb" placeholder="Suburb" required>
+        <textarea name="message" placeholder="What does your pool need?" rows="4" required></textarea>
+        <button type="submit" class="btn btn-primary">Send it</button>
+        <p class="form-note" id="formNote"></p>
+      </form>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <a href="#top" class="logo" aria-label="Pool Guyz home"><img class="brand-logo footer-logo" src="{{ url_for('static', filename='images/poolguyz-logo-transparent.png') }}" alt="Pool Guyz Swimming Pool System"></a>
+      <p>&copy; 2026 Poolguyz. Serving Kerala &amp; surrounds.</p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+
+</html>

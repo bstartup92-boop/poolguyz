@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+{% block title %}Set up admin{% endblock %}
+{% block body %}
+<main class="auth-shell">
+  <section class="auth-card">
+    <a class="admin-logo" href="{{ url_for('home') }}"><img class="admin-brand-image" src="{{ url_for('static', filename='images/poolguyz-logo-transparent.png') }}" alt="Pool Guyz Swimming Pool System"></a>
+    <p class="eyebrow">First-time setup</p>
+    <h1>Create your admin password</h1>
+    <p class="muted">You’ll use this password to manage services, completed work, and reviews.</p>
+    {% include "admin/flash.html" %}
+    <form method="post" class="stack-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Password <input type="password" name="password" minlength="8" required autocomplete="new-password"></label>
+      <label>Confirm password <input type="password" name="confirmation" minlength="8" required autocomplete="new-password"></label>
+      <button class="primary-button" type="submit">Create admin account</button>
+    </form>
+  </section>
+</main>
+{% endblock %}

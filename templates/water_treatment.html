@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Household and commercial water treatment, filtration and maintenance solutions in Kerala.">
+  <title>Water Treatment — Poolguyz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <nav class="nav scrolled" id="nav">
+    <div class="nav-inner">
+      <a href="/" class="logo" aria-label="Pool Guyz home"><img class="brand-logo" src="{{ url_for('static', filename='images/poolguyz-logo-transparent.png') }}" alt="Pool Guyz Swimming Pool System"></a>
+      <div class="nav-links">
+        <a href="/#services">Pool Services</a>
+        <a href="{{ url_for('water_treatment') }}">Water Treatment</a>
+        <a href="/#gallery">Work</a>
+        <a href="/#reviews">Reviews</a>
+        <a href="/quote" class="nav-cta">Get a Quote</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="treatment-hero">
+    <div class="treatment-hero-inner">
+      <p class="eyebrow">Water that works better</p>
+      <h1>Clean water for home and business</h1>
+      <p>From better drinking water at home to dependable high-capacity systems for commercial sites, we assess, install and maintain the right treatment solution.</p>
+      <a href="#treatment-options" class="btn btn-primary">Explore solutions</a>
+    </div>
+    <div class="treatment-bubbles" aria-hidden="true"><span></span><span></span><span></span></div>
+    <svg class="wave-divider" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true"><path d="M0,64 C240,120 480,0 720,32 C960,64 1200,112 1440,48 L1440,120 L0,120 Z"></path></svg>
+  </header>
+
+  <main id="treatment-options">
+    <section class="treatment-section">
+      <div class="treatment-heading">
+        <div><p class="eyebrow">For your home</p><h2>Household water treatment</h2></div>
+        <p>Improve the water you drink, cook with, wash in and use throughout your home.</p>
+      </div>
+      <div class="treatment-grid">
+        {% for item in household %}
+        <article class="treatment-card">
+          <div class="treatment-icon">{{ item.icon }}</div>
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.description }}</p>
+          {% if item.features %}<ul>{% for feature in item.features.split('\n') if feature.strip() %}<li>{{ feature }}</li>{% endfor %}</ul>{% endif %}
+        </article>
+        {% else %}<p class="empty-state">Household treatment options will be added soon.</p>{% endfor %}
+      </div>
+    </section>
+
+    <section class="treatment-section commercial-treatment">
+      <div class="treatment-heading">
+        <div><p class="eyebrow">For your organisation</p><h2>Commercial water treatment</h2></div>
+        <p>Scalable systems designed around demand, water quality, equipment and compliance needs.</p>
+      </div>
+      <div class="treatment-grid">
+        {% for item in commercial %}
+        <article class="treatment-card commercial-card">
+          <div class="treatment-icon">{{ item.icon }}</div>
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.description }}</p>
+          {% if item.features %}<ul>{% for feature in item.features.split('\n') if feature.strip() %}<li>{{ feature }}</li>{% endfor %}</ul>{% endif %}
+        </article>
+        {% else %}<p class="empty-state">Commercial treatment options will be added soon.</p>{% endfor %}
+      </div>
+    </section>
+
+    <section class="treatment-process">
+      <p class="eyebrow center">Straightforward from start to finish</p>
+      <h2 class="section-title center">How we get your water right</h2>
+      <div class="process-grid">
+        <div><span>1</span><h3>Assess</h3><p>We check your water, usage and goals.</p></div>
+        <div><span>2</span><h3>Design</h3><p>We recommend a clear, practical treatment plan.</p></div>
+        <div><span>3</span><h3>Install</h3><p>Our team fits and commissions your system.</p></div>
+        <div><span>4</span><h3>Maintain</h3><p>We keep filters and equipment performing.</p></div>
+      </div>
+    </section>
+
+    <section class="treatment-cta">
+      <div><p class="eyebrow">Start with a water assessment</p><h2>Not sure which system you need?</h2><p>Tell us whether it’s for a home or commercial property and what you want to improve.</p></div>
+      <a href="/quote" class="btn btn-primary">Request a quote</a>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="footer-inner"><a href="/" class="logo" aria-label="Pool Guyz home"><img class="brand-logo footer-logo" src="{{ url_for('static', filename='images/poolguyz-logo-transparent.png') }}" alt="Pool Guyz Swimming Pool System"></a><p>&copy; 2026 Poolguyz. Serving Kerala &amp; surrounds.</p></div></footer>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

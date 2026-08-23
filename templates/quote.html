@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get a Quote — Poolguyz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+  <nav class="nav scrolled" id="nav">
+    <div class="nav-inner">
+      <a href="/" class="logo" aria-label="Pool Guyz home"><img class="brand-logo" src="{{ url_for('static', filename='images/poolguyz-logo-transparent.png') }}" alt="Pool Guyz Swimming Pool System"></a>
+      <div class="nav-links">
+        <a href="/#services">Services</a>
+        <a href="{{ url_for('water_treatment') }}">Water Treatment</a>
+        <a href="/#why">Why Us</a>
+        <a href="/#gallery">Work</a>
+        <a href="/#reviews">Reviews</a>
+        <a href="/quote" class="nav-cta">Get a Quote</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="quote-hero">
+    <div class="quote-hero-inner">
+      <p class="eyebrow">Free &amp; instant</p>
+      <h1>What's your pool going to cost?</h1>
+      <p class="hero-sub">Answer a few questions for a ballpark estimate. A real number needs a quick site visit — this
+        gets you in the right neighbourhood first.</p>
+    </div>
+    <svg class="wave-divider" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,64 C240,120 480,0 720,32 C960,64 1200,112 1440,48 L1440,120 L0,120 Z"></path>
+    </svg>
+  </header>
+
+  <section class="quote-section">
+    <div class="quote-layout">
+
+      <form class="quote-form" method="post" action="/quote">
+        <div class="form-group">
+          <label>What do you need?</label>
+          <div class="radio-grid">
+            <label class="radio-card">
+              <input type="radio" name="service" value="install" required {% if form_data.get('service')=='install'
+                %}checked{% endif %}>
+              <span class="radio-title">New Install</span>
+              <span class="radio-sub">Brand new pool build</span>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="service" value="resurface" {% if form_data.get('service')=='resurface'
+                %}checked{% endif %}>
+              <span class="radio-title">Resurface</span>
+              <span class="radio-sub">Bring an old pool back</span>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="service" value="repair" {% if form_data.get('service')=='repair' %}checked{%
+                endif %}>
+              <span class="radio-title">Repair</span>
+              <span class="radio-sub">Pump, leak, tiles, etc.</span>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="service" value="maintenance" {% if form_data.get('service')=='maintenance'
+                %}checked{% endif %}>
+              <span class="radio-title">Maintenance Plan</span>
+              <span class="radio-sub">Ongoing Monthly service</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group pool-specific">
+          <label>Pool type</label>
+          <div class="radio-grid radio-grid-4">
+            <label class="radio-card small">
+              <input type="radio" name="pool_type" value="concrete" {% if form_data.get('pool_type')=='concrete'
+                %}checked{% endif %}>
+              <span class="radio-title">Concrete</span>
+            </label>
+            <label class="radio-card small">
+              <input type="radio" name="pool_type" value="fibreglass" {% if form_data.get('pool_type')=='fibreglass'
+                %}checked{% endif %}>
+              <span class="radio-title">Fibreglass</span>
+            </label>
+            <label class="radio-card small">
+              <input type="radio" name="pool_type" value="vinyl" {% if form_data.get('pool_type')=='vinyl' %}checked{%
+                endif %}>
+              <span class="radio-title">Vinyl</span>
+            </label>
+            <label class="radio-card small">
+              <input type="radio" name="pool_type" value="above_ground" {% if form_data.get('pool_type')=='above_ground'
+                %}checked{% endif %}>
+              <span class="radio-title">Above-ground</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group pool-specific">
+          <label>Pool size</label>
+          <div class="radio-grid radio-grid-3">
+            <label class="radio-card small">
+              <input type="radio" name="size" value="small" {% if form_data.get('size')=='small' %}checked{% endif %}>
+              <span class="radio-title">Small</span>
+              <span class="radio-sub">Under 20m²</span>
+            </label>
+            <label class="radio-card small">
+              <input type="radio" name="size" value="medium" {% if form_data.get('size')=='medium' %}checked{% endif %}>
+              <span class="radio-title">Medium</span>
+              <span class="radio-sub">20–40m²</span>
+            </label>
+            <label class="radio-card small">
+              <input type="radio" name="size" value="large" {% if form_data.get('size')=='large' %}checked{% endif %}>
+              <span class="radio-title">Large</span>
+              <span class="radio-sub">40m²+</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Anything extra? <span class="label-optional">(optional)</span></label>
+          <div class="checkbox-grid">
+            <label class="checkbox-pill">
+              <input type="checkbox" name="extras" value="heating" {% if 'heating' in form_data.get('extras', [])
+                %}checked{% endif %}>
+              Heating
+            </label>
+            <label class="checkbox-pill">
+              <input type="checkbox" name="extras" value="lighting" {% if 'lighting' in form_data.get('extras', [])
+                %}checked{% endif %}>
+              LED lighting
+            </label>
+            <label class="checkbox-pill">
+              <input type="checkbox" name="extras" value="fencing" {% if 'fencing' in form_data.get('extras', [])
+                %}checked{% endif %}>
+              Fencing
+            </label>
+            <label class="checkbox-pill">
+              <input type="checkbox" name="extras" value="landscaping" {% if 'landscaping' in form_data.get('extras',
+                []) %}checked{% endif %}>
+              Landscaping
+            </label>
+            <label class="checkbox-pill">
+              <input type="checkbox" name="extras" value="water_feature" {% if 'water_feature' in
+                form_data.get('extras', []) %}checked{% endif %}>
+              Water feature
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary quote-submit">Calculate my estimate</button>
+      </form>
+
+      <div class="quote-result {% if result %}has-result{% endif %}">
+        {% if result %}
+        <div class="result-card">
+          <p class="eyebrow">Your estimate</p>
+          {% if result.is_recurring %}
+          <div class="result-price">₹{{ "{:,}".format(result.low) }}–₹{{ "{:,}".format(result.high) }}<span
+              class="result-unit">/week</span></div>
+          {% else %}
+          <div class="result-price">₹{{ "{:,}".format(result.low) }}–₹{{ "{:,}".format(result.high) }}</div>
+          {% endif %}
+          {% if result.extras_chosen %}
+          <p class="result-extras">Includes: {{ result.extras_chosen | join(", ") }}</p>
+          {% endif %}
+          <p class="result-note">This is a ballpark based on typical jobs — your final quote depends on site access,
+            existing condition, and council requirements. Book a free on-site visit for an exact number.</p>
+          <a href="/#contact" class="btn btn-primary result-cta">Book a site visit</a>
+        </div>
+        {% else %}
+        <div class="result-placeholder">
+          <div class="placeholder-icon">💧</div>
+          <p>Fill in the form and your estimate will show up here.</p>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <a href="/" class="logo" aria-label="Pool Guyz home"><img class="brand-logo footer-logo" src="{{ url_for('static', filename='images/poolguyz-logo-transparent.png') }}" alt="Pool Guyz Swimming Pool System"></a>
+      <p>&copy; 2026 Poolguyz. Serving Kerala &amp; surrounds.</p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+
+</html>

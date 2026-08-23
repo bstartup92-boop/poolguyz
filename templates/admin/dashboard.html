@@ -1,0 +1,155 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block body %}
+<header class="admin-header">
+  <a class="admin-logo admin-logo-row" href="{{ url_for('admin_dashboard') }}"><img class="admin-brand-image compact" src="{{ url_for('static', filename='images/poolguyz-logo-transparent.png') }}" alt="Pool Guyz Swimming Pool System"><small>Admin</small></a>
+  <div class="header-actions">
+    <a href="{{ url_for('home') }}" target="_blank">View website ↗</a>
+    <form method="post" action="{{ url_for('admin_logout') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="text-button" type="submit">Log out</button>
+    </form>
+  </div>
+</header>
+
+<main class="dashboard">
+  <div class="dashboard-intro">
+    <div><p class="eyebrow">Content manager</p><h1>Website content</h1></div>
+    <p>Choose a section, then add or update what visitors see.</p>
+  </div>
+  {% include "admin/flash.html" %}
+
+  <nav class="tabs" aria-label="Content sections">
+    <button class="tab-button active" data-tab="services">Services <span>{{ services|length }}</span></button>
+    <button class="tab-button" data-tab="works">Recent work <span>{{ works|length }}</span></button>
+    <button class="tab-button" data-tab="reviews">Reviews <span>{{ reviews|length }}</span></button>
+    <button class="tab-button" data-tab="team_members">Team <span>{{ team_members|length }}</span></button>
+    <button class="tab-button" data-tab="treatments">Water treatment <span>{{ treatments|length }}</span></button>
+  </nav>
+
+  <section class="tab-panel active" id="services-panel">
+    <div class="panel-heading"><div><h2>Services</h2><p>Manage the service cards on your homepage.</p></div><button class="primary-button add-button" data-section="services">+ Add service</button></div>
+    <div class="item-list">
+      {% for item in services %}
+      <article class="content-item">
+        <div class="item-icon">{{ item.icon }}</div>
+        <div class="item-copy"><h3>{{ item.title }}</h3><p>{{ item.description }}</p><small>Order {{ item.sort_order }} · {{ 'Published' if item.is_published else 'Hidden' }}</small></div>
+        <div class="item-actions">
+          <button class="edit-button" data-section="services" data-item='{{ dict(item)|tojson }}'>Edit</button>
+          <form method="post" action="{{ url_for('admin_delete', section='services', item_id=item.id) }}" onsubmit="return confirm('Delete this service?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="delete-button">Delete</button></form>
+        </div>
+      </article>
+      {% else %}<p class="blank-list">No services yet.</p>{% endfor %}
+    </div>
+  </section>
+
+  <section class="tab-panel" id="team_members-panel">
+    <div class="panel-heading"><div><h2>Team members</h2><p>Manage the people and photos shown in the Why Us section.</p></div><button class="primary-button add-button" data-section="team_members">+ Add team member</button></div>
+    <div class="item-list">
+      {% for item in team_members %}
+      <article class="content-item">
+        <div class="item-thumb team-thumb"{% if item.image_url %} style="background-image:url('{{ item.image_url|e }}')"{% endif %}></div>
+        <div class="item-copy"><h3>{{ item.name }}</h3><p><strong>{{ item.role }}</strong> · {{ item.bio }}</p><small>Order {{ item.sort_order }} · {{ 'Published' if item.is_published else 'Hidden' }}</small></div>
+        <div class="item-actions">
+          <button class="edit-button" data-section="team_members" data-item='{{ dict(item)|tojson }}'>Edit</button>
+          <form method="post" action="{{ url_for('admin_delete', section='team_members', item_id=item.id) }}" onsubmit="return confirm('Delete this team member?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="delete-button">Delete</button></form>
+        </div>
+      </article>
+      {% else %}<p class="blank-list">No team members yet.</p>{% endfor %}
+    </div>
+  </section>
+
+  <section class="tab-panel" id="works-panel">
+    <div class="panel-heading"><div><h2>Recent work</h2><p>Show completed jobs and project locations.</p></div><button class="primary-button add-button" data-section="works">+ Add work</button></div>
+    <div class="item-list">
+      {% for item in works %}
+      <article class="content-item">
+        <div class="item-thumb"{% if item.image_url %} style="background-image:url('{{ item.image_url|e }}')"{% endif %}></div>
+        <div class="item-copy"><h3>{{ item.title }}</h3><p>{{ item.location or 'No location' }}</p><small>Order {{ item.sort_order }} · {{ 'Published' if item.is_published else 'Hidden' }}</small></div>
+        <div class="item-actions">
+          <button class="edit-button" data-section="works" data-item='{{ dict(item)|tojson }}'>Edit</button>
+          <form method="post" action="{{ url_for('admin_delete', section='works', item_id=item.id) }}" onsubmit="return confirm('Delete this work item?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="delete-button">Delete</button></form>
+        </div>
+      </article>
+      {% else %}<p class="blank-list">No work items yet.</p>{% endfor %}
+    </div>
+  </section>
+
+  <section class="tab-panel" id="reviews-panel">
+    <div class="panel-heading"><div><h2>Reviews</h2><p>Publish customer feedback on the homepage.</p></div><button class="primary-button add-button" data-section="reviews">+ Add review</button></div>
+    <div class="item-list">
+      {% for item in reviews %}
+      <article class="content-item">
+        <div class="item-icon">★</div>
+        <div class="item-copy"><h3>{{ item.customer_name }}{% if item.location %} · {{ item.location }}{% endif %}</h3><p>“{{ item.quote }}”</p><small>Order {{ item.sort_order }} · {{ 'Published' if item.is_published else 'Hidden' }}</small></div>
+        <div class="item-actions">
+          <button class="edit-button" data-section="reviews" data-item='{{ dict(item)|tojson }}'>Edit</button>
+          <form method="post" action="{{ url_for('admin_delete', section='reviews', item_id=item.id) }}" onsubmit="return confirm('Delete this review?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="delete-button">Delete</button></form>
+        </div>
+      </article>
+      {% else %}<p class="blank-list">No reviews yet.</p>{% endfor %}
+    </div>
+  </section>
+
+  <section class="tab-panel" id="treatments-panel">
+    <div class="panel-heading"><div><h2>Water treatment</h2><p>Manage household and commercial options on the Water Treatment page.</p></div><button class="primary-button add-button" data-section="treatments">+ Add option</button></div>
+    <div class="item-list">
+      {% for item in treatments %}
+      <article class="content-item">
+        <div class="item-icon">{{ item.icon }}</div>
+        <div class="item-copy"><h3>{{ item.title }}</h3><p><strong>{{ item.audience|title }}</strong> · {{ item.description }}</p><small>Order {{ item.sort_order }} · {{ 'Published' if item.is_published else 'Hidden' }}</small></div>
+        <div class="item-actions">
+          <button class="edit-button" data-section="treatments" data-item='{{ dict(item)|tojson }}'>Edit</button>
+          <form method="post" action="{{ url_for('admin_delete', section='treatments', item_id=item.id) }}" onsubmit="return confirm('Delete this water treatment option?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="delete-button">Delete</button></form>
+        </div>
+      </article>
+      {% else %}<p class="blank-list">No water treatment options yet.</p>{% endfor %}
+    </div>
+  </section>
+</main>
+
+<dialog id="editor-dialog">
+  <form method="post" id="editor-form" class="editor-form" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="id" id="field-id">
+    <div class="dialog-heading"><div><p class="eyebrow" id="dialog-eyebrow">Add item</p><h2 id="dialog-title">New item</h2></div><button type="button" class="close-button" aria-label="Close">×</button></div>
+    <div id="service-fields" class="dynamic-fields">
+      <label>Service name *<input name="title" id="service-title"></label>
+      <label>Description *<textarea name="description" id="service-description" rows="4"></textarea></label>
+      <label>Icon or emoji<input name="icon" id="service-icon" maxlength="12" placeholder="💧"></label>
+    </div>
+    <div id="work-fields" class="dynamic-fields">
+      <label>Project title *<input name="title" id="work-title"></label>
+      <label>Location<input name="location" id="work-location" placeholder="e.g. Ernakulam"></label>
+      <label>Image URL<input type="url" name="image_url" id="work-image-url" placeholder="https://..."><small>Paste a public image link, or leave blank for a coloured background.</small></label>
+      <label>Or upload an image<input type="file" name="image_file" id="work-image-file" accept="image/jpeg,image/png,image/webp"><small>Maximum file size: 8 MB.</small></label>
+    </div>
+    <div id="review-fields" class="dynamic-fields">
+      <label>Review *<textarea name="quote" id="review-quote" rows="4"></textarea></label>
+      <label>Customer name *<input name="customer_name" id="review-customer-name"></label>
+      <label>Location<input name="location" id="review-location"></label>
+    </div>
+    <div id="team_member-fields" class="dynamic-fields">
+      <label>Team member name *<input name="name" id="team-member-name"></label>
+      <label>Role *<input name="role" id="team-member-role" placeholder="e.g. Service Technician"></label>
+      <label>Profile description *<textarea name="bio" id="team-member-bio" rows="4"></textarea></label>
+      <label>Image URL<input type="url" name="image_url" id="team-member-image-url" placeholder="https://..."><small>Paste a public image link, or upload a photo below.</small></label>
+      <label>Or upload a profile photo<input type="file" name="image_file" id="team-member-image-file" accept="image/jpeg,image/png,image/webp"><small>Maximum file size: 8 MB.</small></label>
+    </div>
+    <div id="treatment-fields" class="dynamic-fields">
+      <label>Customer type *
+        <select name="audience" id="treatment-audience">
+          <option value="household">Household</option>
+          <option value="commercial">Commercial</option>
+        </select>
+      </label>
+      <label>Option title *<input name="title" id="treatment-title"></label>
+      <label>Description *<textarea name="description" id="treatment-description" rows="4"></textarea></label>
+      <label>Icon or emoji<input name="icon" id="treatment-icon" maxlength="12" placeholder="💧"></label>
+      <label>Features<textarea name="features" id="treatment-features" rows="5" placeholder="One feature per line"></textarea><small>Enter each benefit or feature on a new line.</small></label>
+    </div>
+    <div class="form-row"><label>Display order<input type="number" name="sort_order" id="field-sort-order" value="0"></label><label class="publish-check"><input type="checkbox" name="is_published" id="field-published" checked> Published</label></div>
+    <div class="dialog-actions"><button type="button" class="secondary-button close-button">Cancel</button><button type="submit" class="primary-button">Save changes</button></div>
+  </form>
+</dialog>
+{% endblock %}

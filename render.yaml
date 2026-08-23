@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: poolguyz
+    runtime: python
+    region: singapore
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    healthCheckPath: /
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: POOLGUYZ_DATA_DIR
+        value: /var/data
+    disk:
+      name: poolguyz-data
+      mountPath: /var/data
+      sizeGB: 1
