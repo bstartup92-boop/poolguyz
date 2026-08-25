@@ -29,13 +29,28 @@ document.querySelectorAll('.btn').forEach((btn) => {
   });
 });
 
-// Contact form (demo — no backend wired up yet)
+// Contact form
 const form = document.getElementById('contactForm');
 const note = document.getElementById('formNote');
 if (form) {
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    note.textContent = "Thanks — we'll be in touch shortly.";
-    form.reset();
+    const button = form.querySelector('button[type="submit"]');
+    button.disabled = true;
+    note.textContent = 'Sending your enquiry…';
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' },
+      });
+      const result = await response.json();
+      note.textContent = result.message;
+      if (response.ok) form.reset();
+    } catch (error) {
+      note.textContent = 'We could not send your enquiry. Please call us instead.';
+    } finally {
+      button.disabled = false;
+    }
   });
 }
