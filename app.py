@@ -1,10 +1,13 @@
 import os
 import secrets
 import sqlite3
+import smtplib
+from datetime import datetime, timezone
+from email.message import EmailMessage
 from functools import wraps
 from pathlib import Path
 
-from flask import Flask, abort, flash, redirect, render_template, request, send_from_directory, session, url_for
+from flask import Flask, abort, flash, jsonify, redirect, render_template, request, send_from_directory, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
@@ -41,12 +44,42 @@ SIZE_MULTIPLIER = {"small": 0.8, "medium": 1.0, "large": 1.4}
 EXTRA_COST = {"heating": 4500, "lighting": 1200, "fencing": 3800, "landscaping": 6000, "water_feature": 3200}
 EXTRA_LABELS = {"heating": "Pool heating", "lighting": "LED lighting", "fencing": "Pool fencing", "landscaping": "Landscaping", "water_feature": "Water feature"}
 
+CONTACT_RECIPIENT = os.environ.get("CONTACT_RECIPIENT", "bstartup92@gmail.com")
+SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+SMTP_PORT = int(os.environ.get("SMTP_PORT", "465"))
+SMTP_USERNAME = os.environ.get("SMTP_USERNAME", "")
+SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
+
 
 def get_db():
     connection = sqlite3.connect(app.config["DATABASE"])
     connection.row_factory = sqlite3.Row
     connection.execute("PRAGMA foreign_keys = ON")
     return connection
+
+
+def send_contact_email(name, phone, suburb, message):
+    """Send a website enquiry through the configured SMTP account."""
+    if not SMTP_USERNAME or not SMTP_PASSWORD:
+        raise RuntimeError("Email delivery has not been configured.")
+
+    email = EmailMessage()
+    email["Subject"] = "New PoolGuyz website enquiry"
+    email["From"] = f"PoolGuyz Website <{SMTP_USERNAME}>"
+    email["To"] = CONTACT_RECIPIENT
+    email.set_content(
+        "New enquiry from the PoolGuyz website\n\n"
+        f"Name: {name}\n"
+        f"Phone: {phone}\n"
+        f"Suburb: {suburb}\n\n"
+        "Pool details:\n"
+        f"{message}\n\n"
+        f"Received (UTC): {datetime.now(timezone.utc).strftime('%d %b %Y, %H:%M')}\n"
+    )
+
+    with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=20) as server:
+        server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        server.send_message(email)
 
 
 def init_db():
@@ -200,6 +233,25 @@ def home():
         reviews = db.execute("SELECT * FROM reviews WHERE is_published = 1 ORDER BY sort_order, id").fetchall()
         team_members = db.execute("SELECT * FROM team_members WHERE is_published = 1 ORDER BY sort_order, id").fetchall()
     return render_template("index.html", services=services, works=works, reviews=reviews, team_members=team_members)
+
+
+@app.post("/contact")
+def contact():
+    name = request.form.get("name", "").strip()
+    phone = request.form.get("phone", "").strip()
+    suburb = request.form.get("suburb", "").strip()
+    message = request.form.get("message", "").strip()
+
+    if not all((name, phone, suburb, message)):
+        return jsonify(ok=False, message="Please complete every field."), 400
+
+    try:
+        send_contact_email(name, phone, suburb, message)
+    except Exception:
+        app.logger.exception("Unable to send website enquiry")
+        return jsonify(ok=False, message="We could not send your enquiry. Please call us instead."), 503
+
+    return jsonify(ok=True, message="Thanks — we will be in touch shortly.")
 
 
 @app.route("/quote", methods=["GET", "POST"])
