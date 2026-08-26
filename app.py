@@ -2,10 +2,13 @@ import os
 import secrets
 import sqlite3
 import smtplib
+import json
 from datetime import datetime, timezone
 from email.message import EmailMessage
 from functools import wraps
 from pathlib import Path
+from urllib import error as urlerror
+from urllib import request as urlrequest
 
 from flask import Flask, abort, flash, jsonify, redirect, render_template, request, send_from_directory, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -49,6 +52,8 @@ SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
 SMTP_USERNAME = os.environ.get("SMTP_USERNAME", "")
 SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
+RESEND_FROM = os.environ.get("RESEND_FROM", "PoolGuyz <onboarding@resend.dev>")
 
 
 def get_db():
@@ -59,15 +64,9 @@ def get_db():
 
 
 def send_contact_email(name, phone, suburb, message):
-    """Send a website enquiry through the configured SMTP account."""
-    if not SMTP_USERNAME or not SMTP_PASSWORD:
-        raise RuntimeError("Email delivery has not been configured.")
+    """Send a website enquiry through Resend, with SMTP as a local fallback."""
 
-    email = EmailMessage()
-    email["Subject"] = "New PoolGuyz website enquiry"
-    email["From"] = f"PoolGuyz Website <{SMTP_USERNAME}>"
-    email["To"] = CONTACT_RECIPIENT
-    email.set_content(
+    content = (
         "New enquiry from the PoolGuyz website\n\n"
         f"Name: {name}\n"
         f"Phone: {phone}\n"
@@ -76,6 +75,38 @@ def send_contact_email(name, phone, suburb, message):
         f"{message}\n\n"
         f"Received (UTC): {datetime.now(timezone.utc).strftime('%d %b %Y, %H:%M')}\n"
     )
+
+    if RESEND_API_KEY:
+        payload = json.dumps({
+            "from": RESEND_FROM,
+            "to": [CONTACT_RECIPIENT],
+            "subject": "New PoolGuyz website enquiry",
+            "text": content,
+        }).encode("utf-8")
+        api_request = urlrequest.Request(
+            "https://api.resend.com/emails",
+            data=payload,
+            headers={
+                "Authorization": f"Bearer {RESEND_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        try:
+            with urlrequest.urlopen(api_request, timeout=20):
+                return
+        except urlerror.HTTPError as error:
+            details = error.read().decode("utf-8", errors="replace")
+            raise RuntimeError(f"Resend could not send the enquiry: {details}") from error
+
+    if not SMTP_USERNAME or not SMTP_PASSWORD:
+        raise RuntimeError("Email delivery has not been configured.")
+
+    email = EmailMessage()
+    email["Subject"] = "New PoolGuyz website enquiry"
+    email["From"] = f"PoolGuyz Website <{SMTP_USERNAME}>"
+    email["To"] = CONTACT_RECIPIENT
+    email.set_content(content)
 
     # Gmail's submission service uses STARTTLS on port 587. This works from
     # Render where direct SSL connections on port 465 may be unreachable.
