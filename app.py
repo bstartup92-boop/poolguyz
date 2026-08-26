@@ -46,7 +46,7 @@ EXTRA_LABELS = {"heating": "Pool heating", "lighting": "LED lighting", "fencing"
 
 CONTACT_RECIPIENT = os.environ.get("CONTACT_RECIPIENT", "bstartup92@gmail.com")
 SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.gmail.com")
-SMTP_PORT = int(os.environ.get("SMTP_PORT", "465"))
+SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
 SMTP_USERNAME = os.environ.get("SMTP_USERNAME", "")
 SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
 
@@ -77,7 +77,10 @@ def send_contact_email(name, phone, suburb, message):
         f"Received (UTC): {datetime.now(timezone.utc).strftime('%d %b %Y, %H:%M')}\n"
     )
 
-    with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=20) as server:
+    # Gmail's submission service uses STARTTLS on port 587. This works from
+    # Render where direct SSL connections on port 465 may be unreachable.
+    with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=20) as server:
+        server.starttls()
         server.login(SMTP_USERNAME, SMTP_PASSWORD)
         server.send_message(email)
 
