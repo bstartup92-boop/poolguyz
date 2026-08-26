@@ -89,6 +89,7 @@ def send_contact_email(name, phone, suburb, message):
             headers={
                 "Authorization": f"Bearer {RESEND_API_KEY}",
                 "Content-Type": "application/json",
+                "User-Agent": "PoolGuyz/1.0",
             },
             method="POST",
         )
