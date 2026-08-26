@@ -47,13 +47,22 @@ SIZE_MULTIPLIER = {"small": 0.8, "medium": 1.0, "large": 1.4}
 EXTRA_COST = {"heating": 4500, "lighting": 1200, "fencing": 3800, "landscaping": 6000, "water_feature": 3200}
 EXTRA_LABELS = {"heating": "Pool heating", "lighting": "LED lighting", "fencing": "Pool fencing", "landscaping": "Landscaping", "water_feature": "Water feature"}
 
-CONTACT_RECIPIENT = os.environ.get("CONTACT_RECIPIENT", "bstartup92@gmail.com")
+CONTACT_RECIPIENTS = tuple(
+    address.strip()
+    for address in os.environ.get(
+        "CONTACT_RECIPIENTS",
+        "bstartup92@gmail.com,poolguyzclt@gmail.com",
+    ).split(",")
+    if address.strip()
+)
 SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
 SMTP_USERNAME = os.environ.get("SMTP_USERNAME", "")
 SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
-RESEND_FROM = os.environ.get("RESEND_FROM", "PoolGuyz <onboarding@resend.dev>")
+RESEND_FROM = os.environ.get(
+    "RESEND_FROM", "PoolGuyz <enquiries@send.poolguyz.in>"
+)
 
 
 def get_db():
@@ -79,7 +88,7 @@ def send_contact_email(name, phone, suburb, message):
     if RESEND_API_KEY:
         payload = json.dumps({
             "from": RESEND_FROM,
-            "to": [CONTACT_RECIPIENT],
+            "to": list(CONTACT_RECIPIENTS),
             "subject": "New PoolGuyz website enquiry",
             "text": content,
         }).encode("utf-8")
@@ -106,7 +115,7 @@ def send_contact_email(name, phone, suburb, message):
     email = EmailMessage()
     email["Subject"] = "New PoolGuyz website enquiry"
     email["From"] = f"PoolGuyz Website <{SMTP_USERNAME}>"
-    email["To"] = CONTACT_RECIPIENT
+    email["To"] = ", ".join(CONTACT_RECIPIENTS)
     email.set_content(content)
 
     # Gmail's submission service uses STARTTLS on port 587. This works from
